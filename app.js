@@ -566,8 +566,8 @@ function handleBugReportSubmit() {
     const plainWordsDescription = bugDescription.value;
 
     const reportPayload = {
-        appId: "APP-227",
-        sdkKey: "sdk_app-227_live",
+        appId: "APP-446",
+        sdkKey: "sdk_app-446_live",
         timestamp: new Date().toISOString(),
         description: plainWordsDescription,
         screenshot: attachedScreenshotBase64,
