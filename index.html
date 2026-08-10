@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshCart - Fresh Groceries Delivered Fast</title>
+    <meta name="description" content="Shop fresh groceries online with fixed prices, real-time cart tax & delivery calculations, and instant delivery to your chosen location.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- App Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- ================================================================= -->
+    <!-- BUGSHIELD INTEGRATION SDK - CONNECTED TO YOUR EXTERNAL SERVICE    -->
+    <!-- ================================================================= -->
+    <script src="http://localhost:3000/sdk/bug-shield-sdk.js"></script>
+    <script>
+      if (typeof BugShieldSDK !== 'undefined') {
+        BugShieldSDK.init({
+          appId: "APP-227",
+          sdkKey: "sdk_app-227_live"
+        });
+      } else {
+        console.log("BugShield SDK script target configured: http://localhost:3000/sdk/bug-shield-sdk.js");
+      }
+    </script>
+    <!-- ================================================================= -->
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="brand">
+                <div class="brand-icon">🛒</div>
+                <div class="brand-text">
+                    <h1>FreshCart</h1>
+                    <span class="brand-tag">Grocery Express</span>
+                </div>
+            </div>
+
+            <!-- Location Picker Widget -->
+            <button class="location-btn" id="locationBtn" aria-label="Select Delivery Location">
+                <span class="location-icon">📍</span>
+                <div class="location-info">
+                    <span class="location-label">Deliver to:</span>
+                    <strong class="location-name" id="currentLocationName">Downtown Central (Zone 1)</strong>
+                </div>
+                <span class="chevron">▼</span>
+            </button>
+
+            <!-- Search Bar -->
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search fresh fruits, dairy, bakery..." aria-label="Search products">
+            </div>
+
+            <div class="nav-actions">
+                <!-- User Sign In Button -->
+                <button class="user-btn" id="loginTriggerBtn" title="User Account Login">
+                    <span class="user-icon">👤</span>
+                    <span class="user-label" id="userLabel">Sign In</span>
+                </button>
+
+                <!-- Bug Report Button -->
+                <button class="report-bug-btn" id="reportBugBtn" title="Report an issue on this website">
+                    <span class="bug-icon">🐞</span>
+                    <span class="bug-text">Report Issue</span>
+                </button>
+
+                <!-- Cart Button -->
+                <button class="cart-trigger-btn" id="cartTriggerBtn" aria-label="Open Shopping Cart">
+                    <span class="cart-icon">🛍️</span>
+                    <span class="cart-label">Cart</span>
+                    <span class="cart-badge" id="cartBadge">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Promotional Hero Banner -->
+    <section class="hero-banner">
+        <div class="hero-content">
+            <h2>Fresh Groceries at Guaranteed Fixed Prices</h2>
+            <p>Enter your full home address & landmark, select your delivery zone, and enjoy automatic tax & delivery fee calculations!</p>
+            <div class="hero-badges">
+                <span class="hero-chip">⚡ 30-Min Express Delivery</span>
+                <span class="hero-chip">🏷️ Fixed Price Transparency</span>
+                <span class="hero-chip">🚚 Free Shipping on Orders $50+</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Store Layout -->
+    <main class="main-container">
+        
+        <!-- Category Selector -->
+        <nav class="category-bar" aria-label="Grocery Categories">
+            <button class="category-btn active" data-category="all">All Items</button>
+            <button class="category-btn" data-category="produce">🍎 Fruits & Veggies</button>
+            <button class="category-btn" data-category="dairy">🥛 Dairy & Eggs</button>
+            <button class="category-btn" data-category="bakery">🍞 Fresh Bakery</button>
+            <button class="category-btn" data-category="beverages">🧃 Juices & Drinks</button>
+            <button class="category-btn" data-category="pantry">🧀 Pantry & Deli</button>
+        </nav>
+
+        <!-- Product Grid Section -->
+        <section class="products-section">
+            <div class="section-header">
+                <h3 id="sectionTitle">All Grocery Items</h3>
+                <span class="item-count" id="itemCount">Showing items</span>
+            </div>
+            
+            <div class="products-grid" id="productsGrid">
+                <!-- Dynamically populated via app.js -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Cart Overlay & Drawer -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Cart">
+        <div class="cart-header">
+            <h3>Your Grocery Cart</h3>
+            <button class="close-btn" id="closeCartBtn" aria-label="Close Cart">✕</button>
+        </div>
+
+        <!-- Selected Location in Cart -->
+        <div class="cart-location-bar">
+            <span>📍 Delivering to:</span>
+            <strong id="cartLocationText">Downtown Central</strong>
+            <button class="change-loc-link" id="cartChangeLocBtn">Change Zone</button>
+        </div>
+
+        <!-- Cart Items List -->
+        <div class="cart-body" id="cartBody">
+            <!-- Empty state or cart items list -->
+        </div>
+
+        <!-- Coupon Code Promo Box -->
+        <div class="coupon-box">
+            <input type="text" id="couponInput" placeholder="Enter coupon code (e.g. FRESH10)">
+            <button class="apply-coupon-btn" id="applyCouponBtn">Apply</button>
+        </div>
+
+        <!-- Cart Summary & Calculation Footer -->
+        <div class="cart-footer">
+            <div class="price-breakdown">
+                <div class="price-row">
+                    <span>Items Subtotal</span>
+                    <strong id="subtotalAmount">$0.00</strong>
+                </div>
+                <div class="price-row">
+                    <span>Estimated Sales Tax (8%)</span>
+                    <strong id="taxAmount">$0.00</strong>
+                </div>
+                <div class="price-row">
+                    <span>Delivery Charge (<span id="deliveryFeeLabel">Standard</span>)</span>
+                    <strong id="deliveryAmount">$0.00</strong>
+                </div>
+                <div class="price-row discount-row" id="discountRow" style="display: none;">
+                    <span>Coupon Discount</span>
+                    <strong id="discountAmount">-$0.00</strong>
+                </div>
+                <div class="free-delivery-progress" id="freeDeliveryProgress">
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="progressFill" style="width: 0%;"></div>
+                    </div>
+                    <span class="progress-text" id="progressText">Add $50.00 more for FREE delivery!</span>
+                </div>
+                <div class="price-row total-row">
+                    <span>Total Amount</span>
+                    <strong id="totalAmount">$0.00</strong>
+                </div>
+            </div>
+
+            <button class="checkout-btn" id="checkoutBtn" disabled>
+                <span>Proceed to Checkout</span>
+                <span class="checkout-arrow">→</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Location Selector Modal -->
+    <div class="modal-backdrop" id="locationModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Select Your Delivery Zone</h3>
+                <button class="close-btn" id="closeLocationModalBtn">✕</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-subtitle">Delivery fees and estimated delivery times vary by area:</p>
+                <div class="locations-list" id="locationsList">
+                    <!-- Location Options injected by app.js -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-backdrop" id="loginModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Account Sign In</h3>
+                <button class="close-btn" id="closeLoginModalBtn">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" placeholder="e.g. user@example.com" value="user@freshcart.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" value="••••••••" required>
+                    </div>
+                    <button type="submit" class="primary-btn" style="width: 100%; margin-top: 0.5rem;">Sign In</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal with Manual Address Entry -->
+    <div class="modal-backdrop" id="checkoutModal">
+        <div class="modal-card modal-lg">
+            <div class="modal-header">
+                <h3>Finalize Grocery Order</h3>
+                <button class="close-btn" id="closeCheckoutModalBtn">✕</button>
+            </div>
+            <div class="modal-body checkout-layout">
+                <form id="checkoutForm" class="checkout-form">
+                    <h4>Customer & Manual Delivery Address</h4>
+                    
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="custName">Full Name</label>
+                            <input type="text" id="custName" placeholder="e.g. Jane Doe" required value="Jane Doe">
+                        </div>
+                        <div class="form-group half">
+                            <label for="custPhone">Phone Number</label>
+                            <input type="tel" id="custPhone" placeholder="e.g. (555) 234-5678" required value="(555) 234-5678">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="houseNo">House / Flat / Apt No.</label>
+                            <input type="text" id="houseNo" placeholder="e.g. House No. 42B, Sunset Villa" required value="Apt 4B, Building 12">
+                        </div>
+                        <div class="form-group half">
+                            <label for="streetAddress">Street Name / Area</label>
+                            <input type="text" id="streetAddress" placeholder="e.g. Maple Street, West End" required value="452 Maple Street">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="landmark">Nearby Landmark</label>
+                            <input type="text" id="landmark" placeholder="e.g. Opposite City Hospital" required value="Near Central Community Park">
+                        </div>
+                        <div class="form-group half">
+                            <label for="pincode">Pincode / Zip Code</label>
+                            <input type="text" id="pincode" placeholder="e.g. 560001 or 90210" required value="560001">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="deliveryZoneSelect">Delivery Zone Area</label>
+                        <select id="deliveryZoneSelect" required>
+                            <!-- Options populated via app.js -->
+                        </select>
+                    </div>
+
+                    <h4>Payment Method</h4>
+                    <div class="payment-options">
+                        <label class="payment-option active">
+                            <input type="radio" name="payment" value="cod" checked>
+                            <span class="radio-mark"></span>
+                            💵 Cash / Card on Delivery
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment" value="card">
+                            <span class="radio-mark"></span>
+                            💳 Online Card Payment (Demo)
+                        </label>
+                    </div>
+
+                    <div class="checkout-summary-box">
+                        <div class="summary-line"><span>Manual Address:</span> <strong id="checkoutAddressPreview">Apt 4B, 452 Maple Street</strong></div>
+                        <div class="summary-line"><span>Landmark:</span> <strong id="checkoutLandmarkPreview">Near Central Park</strong></div>
+                        <div class="summary-line"><span>Delivery Zone:</span> <strong id="checkoutZone">Downtown Central</strong></div>
+                        <div class="summary-line"><span>Estimated Delivery:</span> <strong id="checkoutEta">25 - 35 mins</strong></div>
+                        <div class="summary-line total"><span>Total Payable:</span> <strong id="checkoutTotal">$0.00</strong></div>
+                    </div>
+
+                    <button type="submit" class="place-order-btn" id="placeOrderBtn">
+                        Confirm & Place Order
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Confirmation Modal -->
+    <div class="modal-backdrop" id="orderModal">
+        <div class="modal-card modal-lg text-center">
+            <div class="order-success-icon">🎉</div>
+            <h2>Order Placed Successfully!</h2>
+            <p class="order-subtitle">Thank you for shopping with FreshCart.</p>
+
+            <div class="order-number-box">
+                <span class="ord-label">YOUR ORDER NUMBER:</span>
+                <h1 class="ord-id" id="confirmedOrderId">#GROC-894120</h1>
+                <span class="ord-badge">STATUS: PREPARING FOR DELIVERY</span>
+            </div>
+
+            <div class="order-receipt-card" id="orderReceiptCard">
+                <!-- Order Receipt details generated dynamically -->
+            </div>
+
+            <div class="order-actions">
+                <button class="primary-btn" id="continueShoppingBtn">Back to Store</button>
+                <button class="secondary-btn" id="reportOrderIssueBtn">Report Issue 🐞</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clean Ultra-Minimal Bug Report Modal (1 Textbox + 1 Upload Box Only) -->
+    <div class="modal-backdrop" id="bugReportModal">
+        <div class="modal-card dark-bug-card">
+            <div class="modal-header dark-header">
+                <h3>🐞 Report an Issue</h3>
+                <button class="close-btn dark-close" id="closeBugReportBtn">✕</button>
+            </div>
+            <div class="modal-body dark-body">
+                <form id="bugReportForm">
+                    
+                    <!-- 1. Single empty box to write technical issue -->
+                    <div class="form-group">
+                        <label class="dark-label" for="bugDescription">Describe the technical issue</label>
+                        <textarea id="bugDescription" class="dark-textarea" rows="5" placeholder="Describe the technical issue..." required></textarea>
+                    </div>
+
+                    <!-- 2. Optional upload screenshot box -->
+                    <div class="form-group" style="margin-top: 1.25rem;">
+                        <label class="dark-label">Screenshots or recordings (optional)</label>
+                        <span class="sub-label">Tap screenshot to edit or remove sensitive info</span>
+                        
+                        <div class="attachment-area" id="attachmentArea">
+                            <input type="file" id="bugAttachmentInput" accept="image/*" style="display: none;">
+                            <div class="upload-tile" id="uploadTile" title="Upload Screenshot">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <polyline points="21 15 16 10 5 21"/>
+                                    <line x1="12" y1="8" x2="12" y2="14"/>
+                                    <line x1="9" y1="11" x2="15" y2="11"/>
+                                </svg>
+                            </div>
+                            <div class="attachment-preview" id="attachmentPreview" style="display: none;">
+                                <img id="previewImg" src="" alt="Screenshot Preview">
+                                <button type="button" class="remove-attach-btn" id="removeAttachBtn">✕</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="submit-bug-btn dark-submit-btn" id="submitBugBtn" style="margin-top: 1.5rem;">
+                        Submit Bug Report
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toasts -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Main JavaScript Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
