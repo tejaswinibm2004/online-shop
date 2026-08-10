@@ -568,9 +568,15 @@ function handleBugReportSubmit() {
     const reportPayload = {
         appId: "APP-227",
         sdkKey: "sdk_app-227_live",
+        applicationId: "APP-227",
+        apiKey: "sdk_app-227_live",
         timestamp: new Date().toISOString(),
+        issueSummary: plainWordsDescription,
         description: plainWordsDescription,
+        summary: plainWordsDescription,
         screenshot: attachedScreenshotBase64,
+        risk: "MEDIUM",
+        status: "UNRESOLVED",
         environment: {
             url: window.location.href,
             cartItemCount: cartState.reduce((a,b) => a + b.quantity, 0),
@@ -581,18 +587,30 @@ function handleBugReportSubmit() {
 
     console.log("Submitting BugShield SDK Payload:", reportPayload);
 
-    // Trigger BugShieldSDK if loaded
-    if (typeof BugShieldSDK !== 'undefined' && typeof BugShieldSDK.reportIssue === 'function') {
-        BugShieldSDK.reportIssue(reportPayload);
+    // Trigger BugShieldSDK methods if loaded
+    if (typeof BugShieldSDK !== 'undefined') {
+        if (typeof BugShieldSDK.reportIssue === 'function') BugShieldSDK.reportIssue(reportPayload);
+        if (typeof BugShieldSDK.report === 'function') BugShieldSDK.report(reportPayload);
+        if (typeof BugShieldSDK.sendIssue === 'function') BugShieldSDK.sendIssue(reportPayload);
+        if (typeof BugShieldSDK.capture === 'function') BugShieldSDK.capture(reportPayload);
     }
 
-    // Direct HTTP call to local backend service on 3000
-    fetch('http://localhost:3000/api/report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(reportPayload)
-    }).catch(err => {
-        console.log("Direct dispatch attempt to http://localhost:3000/api/report complete:", err);
+    // Direct HTTP dispatches to local backend service on 3000
+    const endpoints = [
+        'http://localhost:3000/api/report',
+        'http://localhost:3000/api/issues',
+        'http://localhost:3000/api/bugs',
+        'http://localhost:3000/api/bug-report'
+    ];
+
+    endpoints.forEach(ep => {
+        fetch(ep, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(reportPayload)
+        }).catch(err => {
+            console.log(`Dispatch to ${ep} attempt complete`);
+        });
     });
 
     closeModal(bugReportModal);
