@@ -566,10 +566,10 @@ function handleBugReportSubmit() {
     const plainWordsDescription = bugDescription.value;
 
     const reportPayload = {
-        appId: "APP-227",
-        sdkKey: "sdk_app-227_live",
-        applicationId: "APP-227",
-        apiKey: "sdk_app-227_live",
+        appId: "APP-618",
+        sdkKey: "sdk_app-618_live",
+        applicationId: "APP-618",
+        apiKey: "sdk_app-618_live",
         timestamp: new Date().toISOString(),
         issueSummary: plainWordsDescription,
         description: plainWordsDescription,
@@ -600,8 +600,8 @@ function handleBugReportSubmit() {
 
     // Option B payload format
     const optionBPayload = {
-        application_id: 'APP-227',
-        sdk_key: 'sdk_app-227_live',
+        application_id: 'APP-618',
+        sdk_key: 'sdk_app-618_live',
         title: plainWordsDescription || 'Bug Report',
         description: plainWordsDescription || 'Bug Report',
         page_url: window.location.pathname
