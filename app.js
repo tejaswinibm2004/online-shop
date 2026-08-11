@@ -595,15 +595,33 @@ function handleBugReportSubmit() {
         if (typeof BugShieldSDK.capture === 'function') BugShieldSDK.capture(reportPayload);
     }
 
-    // Direct HTTP dispatches to local backend service on 3000
-    const endpoints = [
-        'http://localhost:3000/api/report',
-        'http://localhost:3000/api/issues',
-        'http://localhost:3000/api/bugs',
-        'http://localhost:3000/api/bug-report'
+    // Direct HTTP dispatches to Cloud Backend on Render
+    const RENDER_BACKEND_URL = 'https://bugshield-backend.onrender.com/api/v1/issues';
+
+    // Option B payload format
+    const optionBPayload = {
+        application_id: 'APP-227',
+        sdk_key: 'sdk_app-227_live',
+        title: plainWordsDescription || 'Bug Report',
+        description: plainWordsDescription || 'Bug Report',
+        page_url: window.location.pathname
+    };
+
+    fetch(RENDER_BACKEND_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(optionBPayload)
+    }).catch(err => {
+        console.log(`Dispatch to ${RENDER_BACKEND_URL} complete`);
+    });
+
+    const fallbackEndpoints = [
+        'https://bugshield-backend.onrender.com/api/report',
+        'https://bugshield-backend.onrender.com/api/issues',
+        'https://bugshield-backend.onrender.com/api/bugs'
     ];
 
-    endpoints.forEach(ep => {
+    fallbackEndpoints.forEach(ep => {
         fetch(ep, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

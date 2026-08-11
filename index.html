@@ -15,17 +15,15 @@
     <link rel="stylesheet" href="styles.css">
 
     <!-- ================================================================= -->
-    <!-- BUGSHIELD INTEGRATION SDK - CONNECTED TO YOUR EXTERNAL SERVICE    -->
+    <!-- BUGSHIELD INTEGRATION SDK - CONNECTED TO RENDER CLOUD BACKEND     -->
     <!-- ================================================================= -->
-    <script src="http://localhost:3000/sdk/bug-shield-sdk.js"></script>
+    <script src="https://bugshield-backend.onrender.com/sdk/bug-shield-sdk.js"></script>
     <script>
       if (typeof BugShieldSDK !== 'undefined') {
         BugShieldSDK.init({
-          appId: "APP-227",
-          sdkKey: "sdk_app-227_live"
+          appId: 'APP-227',
+          sdkKey: 'sdk_app-227_live'
         });
-      } else {
-        console.log("BugShield SDK script target configured: http://localhost:3000/sdk/bug-shield-sdk.js");
       }
     </script>
     <!-- ================================================================= -->
