@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: online-shop
+    runtime: static
+    buildCommand: echo "Building static site..."
+    staticPublishPath: ./
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
